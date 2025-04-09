@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: eem
+
+  datasource:
+    username: postgres
+    password: 91926499
+    url: jdbc:postgresql://localhost:5432/eem_ali
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    me.paulschwarz.springdotenv: DEBUG
+    org.springframework.core.env: DEBUG
+
+app:
+  jwt:
+    secret: U2FsdGVkX19osuGIYdp95E1jk3P+U++wyKTxHLUQ4c0= # AES256
+    access-token-expiration-ms: 900000  # 15 minutes
+    refresh-token-expiration-ms: 604800000  # 7 days
+    issuer: study4ever-auth-service
