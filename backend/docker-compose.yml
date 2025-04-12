@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: eem-app:latest
     container_name: eem-app
     depends_on:
       - postgres
