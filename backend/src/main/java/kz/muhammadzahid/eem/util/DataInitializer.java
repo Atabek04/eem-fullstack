@@ -41,7 +41,7 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("Checking the admins existence")
         if (!userRepository.existsByEmail("admin1@gmail.com")) {
-            log.info("Creating the default admin")
+            log.info("Creating the default admin");
             userRepository.save(User.builder()
                     .username("big-boss")
                     .email("admin1@gmail.com")
