@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class EventImage extends BaseEntity<Long> {
+public class EventImage extends BaseEntity {
 
     @Column(nullable = false)
     private String imageUrl;

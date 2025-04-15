@@ -25,17 +25,17 @@ import java.util.Objects;
 @SuperBuilder
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntity<T> {
+public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private T id;
+    private Long id;
 
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        if (!(o instanceof BaseEntity<?> that)) return false;
+        if (!(o instanceof BaseEntity that)) return false;
 
         Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
                 ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()

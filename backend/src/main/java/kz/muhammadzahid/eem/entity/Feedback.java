@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class Feedback extends BaseEntity<Long> {
+public class Feedback extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)

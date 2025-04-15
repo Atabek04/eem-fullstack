@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class Role extends BaseEntity<Long> {
+public class Role extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true)

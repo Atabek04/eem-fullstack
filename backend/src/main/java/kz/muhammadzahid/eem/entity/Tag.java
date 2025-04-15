@@ -20,7 +20,7 @@ import java.util.Set;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class Tag extends BaseEntity<Long> {
+public class Tag extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String name;

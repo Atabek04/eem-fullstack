@@ -30,7 +30,7 @@ import java.util.Set;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class Event extends BaseEntity<Long> {
+public class Event extends BaseEntity {
 
     @Column(nullable = false)
     private String title;

@@ -7,7 +7,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +24,7 @@ import java.util.Set;
 @Setter
 @SuperBuilder
 @NoArgsConstructor
-public class User extends BaseEntity<Long> {
+public class User extends BaseEntity {
 
     @Column(nullable = false, unique = true)
     private String username;
