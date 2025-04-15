@@ -38,7 +38,6 @@ public class Mapper {
                 .lastName(userRequest.getLastName())
                 .email(userRequest.getEmail())
                 .phoneNumber(userRequest.getPhoneNumber())
-                .password(userRequest.getPassword())
                 .roles(userRequest.getRoles())
                 .active(true)
                 .createdAt(LocalDateTime.now())

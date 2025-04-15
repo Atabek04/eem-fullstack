@@ -10,6 +10,7 @@ import kz.muhammadzahid.eem.service.UserService;
 import kz.muhammadzahid.eem.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponse> getAllUsers() {
@@ -30,7 +32,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserRequest userRequest) {
+        var password = passwordEncoder.encode(userRequest.getPassword());
         var user = Mapper.mapToUser(userRequest);
+        user.setPassword(password);
         var savedUser = userRepository.save(user);
         return Mapper.mapToUserResponse(savedUser);
     }

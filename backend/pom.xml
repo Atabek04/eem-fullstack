@@ -11,7 +11,7 @@
 	</parent>
 
 	<groupId>kz.muhammadzahid</groupId>
-	<artifactId>eem</artifactId>
+	<artifactId>eem-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>eem</name>
 	<description>eem</description>
