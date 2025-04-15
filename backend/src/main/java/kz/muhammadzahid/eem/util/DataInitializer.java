@@ -39,7 +39,7 @@ public class DataInitializer implements CommandLineRunner {
             log.info("Default roles initialized");
         }
 
-        log.info("Checking the admins existence")
+        log.info("Checking the admins existence");
         if (!userRepository.existsByEmail("admin1@gmail.com")) {
             log.info("Creating the default admin");
             userRepository.save(User.builder()
