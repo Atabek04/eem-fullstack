@@ -101,9 +101,10 @@ public class Mapper {
 
         if (event.isOnlineEvent() && event.getOnlineLink() != null) {
             eventResponse.setOnlineLink(event.getOnlineLink());
-        } else if (eventResponse.getCityId() != null && eventResponse.getAddress() != null) {
-            eventResponse.setCityId(eventResponse.getCityId());
-            eventResponse.setAddress(eventResponse.getAddress());
+        }
+        if (event.getCity() != null && event.getAddress() != null) {
+            eventResponse.setCityId(event.getCity().getId());
+            eventResponse.setAddress(event.getAddress());
         }
 
         return eventResponse;
