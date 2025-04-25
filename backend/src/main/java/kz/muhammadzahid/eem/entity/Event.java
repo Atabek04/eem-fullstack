@@ -44,8 +44,11 @@ public class Event extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime endDateTime;
 
-    private String location;
-    private String venue;
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
+
+    private String address;
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;
@@ -60,8 +63,6 @@ public class Event extends BaseEntity {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private boolean published = false;
-
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<EventImage> images = new ArrayList<>();
@@ -75,7 +76,7 @@ public class Event extends BaseEntity {
     @ToString.Exclude
     private Set<Tag> tags = new HashSet<>();
 
-    public enum EventType {
-        CONFERENCE, MEETUP, WORKSHOP, MASTERCLASS
-    }
+    private boolean onlineEvent;
+
+    private String onlineLink;
 }

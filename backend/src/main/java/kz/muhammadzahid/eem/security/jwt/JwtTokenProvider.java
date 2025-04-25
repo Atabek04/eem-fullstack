@@ -1,4 +1,4 @@
-package kz.muhammadzahid.eem.jwt;
+package kz.muhammadzahid.eem.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

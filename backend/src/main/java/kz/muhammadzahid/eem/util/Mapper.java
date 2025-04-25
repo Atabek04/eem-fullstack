@@ -1,14 +1,23 @@
 package kz.muhammadzahid.eem.util;
 
+import kz.muhammadzahid.eem.dto.CityDto;
+import kz.muhammadzahid.eem.dto.EventResponseDto;
+import kz.muhammadzahid.eem.dto.TagDto;
+import kz.muhammadzahid.eem.dto.TagRequest;
 import kz.muhammadzahid.eem.dto.UserRequest;
 import kz.muhammadzahid.eem.dto.UserResponse;
+import kz.muhammadzahid.eem.entity.City;
+import kz.muhammadzahid.eem.entity.Event;
+import kz.muhammadzahid.eem.entity.Tag;
 import kz.muhammadzahid.eem.entity.User;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @UtilityClass
 public class Mapper {
 
@@ -53,5 +62,58 @@ public class Mapper {
         user.setActive(true);
         user.setRoles(userRequest.getRoles());
         return user;
+    }
+
+    public CityDto mapToCityDto(City city) {
+        return CityDto.builder()
+                .id(city.getId())
+                .name(city.getName())
+                .region(city.getRegion())
+                .build();
+    }
+
+    public TagDto mapToTagDto(Tag tag) {
+        return TagDto.builder()
+                .id(tag.getId())
+                .name(tag.getName())
+                .description(tag.getDescription())
+                .colorCode(tag.getColorCode())
+                .build();
+    }
+
+    public EventResponseDto mapToEventResponseDto(Event event) {
+        var eventResponse = EventResponseDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .startDateTime(event.getStartDateTime())
+                .endDateTime(event.getEndDateTime())
+                .eventType(event.getEventType())
+                .capacity(event.getCapacity())
+                .online(event.isOnlineEvent())
+                .createdById(event.getCreatedBy().getId())
+                .createdAt(event.getCreatedAt())
+                .updatedAt(event.getUpdatedAt())
+                .tagIds(event.getTags().stream()
+                        .map(Tag::getId)
+                        .collect(Collectors.toSet()))
+                .build();
+
+        if (event.isOnlineEvent() && event.getOnlineLink() != null) {
+            eventResponse.setOnlineLink(event.getOnlineLink());
+        } else if (eventResponse.getCityId() != null && eventResponse.getAddress() != null) {
+            eventResponse.setCityId(eventResponse.getCityId());
+            eventResponse.setAddress(eventResponse.getAddress());
+        }
+
+        return eventResponse;
+    }
+
+    public Tag mapToTag(TagRequest tag) {
+        return Tag.builder()
+                .name(tag.getName())
+                .description(tag.getDescription())
+                .colorCode(tag.getColorCode())
+                .build();
     }
 }

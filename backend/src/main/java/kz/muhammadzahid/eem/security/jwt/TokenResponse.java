@@ -1,4 +1,4 @@
-package kz.muhammadzahid.eem.jwt;
+package kz.muhammadzahid.eem.security.jwt;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package kz.muhammadzahid.eem.jwt;
+package kz.muhammadzahid.eem.security.jwt;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

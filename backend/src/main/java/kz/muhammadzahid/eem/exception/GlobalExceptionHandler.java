@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.persistence.EntityNotFoundException;
 import kz.muhammadzahid.eem.dto.ErrorResponse;
 import kz.muhammadzahid.eem.util.RoleUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             UsernameNotFoundException.class,
-            UserNotFoundException.class
+            UserNotFoundException.class,
+            EntityNotFoundException.class
     })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(Exception ex) {
@@ -132,7 +134,7 @@ public class GlobalExceptionHandler {
         }
 
         log.error("JSON parsing error: {}", ex.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, null);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorMessage, List.of(ex.getMessage()));
     }
 
     @ExceptionHandler(InvalidRoleException.class)

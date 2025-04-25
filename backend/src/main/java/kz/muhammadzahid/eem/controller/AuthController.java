@@ -5,7 +5,7 @@ import kz.muhammadzahid.eem.dto.LoginRequest;
 import kz.muhammadzahid.eem.dto.RegisterRequest;
 import kz.muhammadzahid.eem.dto.UserResponse;
 import kz.muhammadzahid.eem.exception.BadRequestException;
-import kz.muhammadzahid.eem.jwt.TokenResponse;
+import kz.muhammadzahid.eem.security.jwt.TokenResponse;
 import kz.muhammadzahid.eem.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

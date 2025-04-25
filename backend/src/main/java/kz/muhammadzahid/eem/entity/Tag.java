@@ -32,6 +32,9 @@ public class Tag extends BaseEntity {
     @ManyToMany(mappedBy = "tags")
     private Set<Event> events = new HashSet<>();
 
-    private Integer usageCount = 0;
-    private boolean featured = false;
+    public Tag(String technology, String eventsRelatedToTechnology, String hashtag) {
+        this.name = technology;
+        this.description = eventsRelatedToTechnology;
+        this.colorCode = hashtag;
+    }
 }

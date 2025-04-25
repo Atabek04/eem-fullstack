@@ -15,10 +15,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-logging:
-  level:
-    me.paulschwarz.springdotenv: DEBUG
-    org.springframework.core.env: DEBUG
 
 app:
   jwt:
