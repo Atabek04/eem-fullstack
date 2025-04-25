@@ -1,6 +1,6 @@
 services:
   app:
-    image: eem-app:latest
+    image: eem-app:0.0.1-SNAPSHOT
     container_name: eem-app
     depends_on:
       - postgres
@@ -16,7 +16,7 @@ services:
       - "8080:8080"
     networks:
       - eem-network
-    restart: unless-stopped
+
 
   postgres:
     image: postgres:15-alpine
