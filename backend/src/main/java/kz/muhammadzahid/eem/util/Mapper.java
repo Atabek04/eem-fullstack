@@ -1,6 +1,7 @@
 package kz.muhammadzahid.eem.util;
 
 import kz.muhammadzahid.eem.dto.CityDto;
+import kz.muhammadzahid.eem.dto.EventImageDto;
 import kz.muhammadzahid.eem.dto.EventResponseDto;
 import kz.muhammadzahid.eem.dto.TagDto;
 import kz.muhammadzahid.eem.dto.TagRequest;
@@ -8,12 +9,14 @@ import kz.muhammadzahid.eem.dto.UserRequest;
 import kz.muhammadzahid.eem.dto.UserResponse;
 import kz.muhammadzahid.eem.entity.City;
 import kz.muhammadzahid.eem.entity.Event;
+import kz.muhammadzahid.eem.entity.EventImage;
 import kz.muhammadzahid.eem.entity.Tag;
 import kz.muhammadzahid.eem.entity.User;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -97,6 +100,13 @@ public class Mapper {
                 .tagIds(event.getTags().stream()
                         .map(Tag::getId)
                         .collect(Collectors.toSet()))
+                .registeredAttendeesCount(event.getRegisteredAttendeesCount())
+                .hasAvailablePlaces(event.isHasAvailablePlaces())
+                .publiclyVisible(event.isPubliclyVisible())
+                .registrationRequired(event.isRegistrationRequired())
+                .organizerNotes(event.getOrganizerNotes())
+                .externalRegistrationLink(event.getExternalRegistrationLink())
+                .images(mapEventImagesToDtos(event.getImages()))
                 .build();
 
         if (event.isOnlineEvent() && event.getOnlineLink() != null) {
@@ -107,6 +117,11 @@ public class Mapper {
             eventResponse.setAddress(event.getAddress());
         }
 
+        event.getImages().stream()
+                .filter(EventImage::isCoverImage)
+                .findFirst()
+                .ifPresent(coverImage -> eventResponse.setCoverImageId(coverImage.getId()));
+
         return eventResponse;
     }
 
@@ -115,6 +130,31 @@ public class Mapper {
                 .name(tag.getName())
                 .description(tag.getDescription())
                 .colorCode(tag.getColorCode())
+                .build();
+    }
+    
+    public EventImageDto mapToEventImageDto(EventImage image) {
+        return EventImageDto.builder()
+                .id(image.getId())
+                .imageUrl(image.getImageUrl())
+                .description(image.getDescription())
+                .isCoverImage(image.isCoverImage())
+                .build();
+    }
+    
+    public List<EventImageDto> mapEventImagesToDtos(List<EventImage> images) {
+        return images.stream()
+                .map(Mapper::mapToEventImageDto)
+                .collect(Collectors.toList());
+    }
+    
+    public EventImage mapToEventImage(EventImageDto imageDto, Event event) {
+        return EventImage.builder()
+                .id(imageDto.getId())
+                .imageUrl(imageDto.getImageUrl())
+                .description(imageDto.getDescription())
+                .isCoverImage(imageDto.isCoverImage())
+                .event(event)
                 .build();
     }
 }

@@ -2,10 +2,12 @@ package kz.muhammadzahid.eem.service.impl;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import kz.muhammadzahid.eem.dto.EventImageDto;
 import kz.muhammadzahid.eem.dto.EventRequestDto;
 import kz.muhammadzahid.eem.dto.EventResponseDto;
 import kz.muhammadzahid.eem.entity.City;
 import kz.muhammadzahid.eem.entity.Event;
+import kz.muhammadzahid.eem.entity.EventImage;
 import kz.muhammadzahid.eem.entity.Tag;
 import kz.muhammadzahid.eem.entity.User;
 import kz.muhammadzahid.eem.repo.CityRepository;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +44,6 @@ public class EventServiceImpl implements EventService {
         if (eventRequestDto.getEndDateTime().isBefore(eventRequestDto.getStartDateTime())) {
             throw new IllegalArgumentException("End date cannot be before start date");
         }
-
 
         String loggedUserUserName = securityUserContext.getCurrentUserUserName();
         User loggedUser = userRepository.findByUsername(loggedUserUserName)
@@ -69,6 +71,13 @@ public class EventServiceImpl implements EventService {
                 .createdBy(loggedUser)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                // Add new fields
+                .registeredAttendeesCount(0)
+                .hasAvailablePlaces(true)
+                .organizerNotes(eventRequestDto.getOrganizerNotes())
+                .externalRegistrationLink(eventRequestDto.getExternalRegistrationLink())
+                .publiclyVisible(eventRequestDto.isPubliclyVisible())
+                .registrationRequired(eventRequestDto.isRegistrationRequired())
                 .build();
 
         if (event.isOnlineEvent() && eventRequestDto.getOnlineLink() != null) {
@@ -80,8 +89,32 @@ public class EventServiceImpl implements EventService {
             event.setCity(city);
             event.setAddress(eventRequestDto.getAddress());
         }
+        
+        // Process event images
+        if (eventRequestDto.getImages() != null && !eventRequestDto.getImages().isEmpty()) {
+            List<EventImage> eventImages = new ArrayList<>();
+            
+            for (EventImageDto imageDto : eventRequestDto.getImages()) {
+                EventImage image = Mapper.mapToEventImage(imageDto, event);
+                eventImages.add(image);
+                
+                // If this is marked as cover image or if coverImageId matches
+                if (imageDto.isCoverImage() || 
+                    (eventRequestDto.getCoverImageId() != null && 
+                     imageDto.getId() != null && 
+                     imageDto.getId().equals(eventRequestDto.getCoverImageId()))) {
+                    image.setCoverImage(true);
+                }
+            }
+            
+            event.setImages(eventImages);
+        }
+        
+        // Ensure availability status is set correctly
+        event.updateAvailabilityStatus();
 
-        return Mapper.mapToEventResponseDto(eventRepository.save(event));
+        Event savedEvent = eventRepository.save(event);
+        return Mapper.mapToEventResponseDto(savedEvent);
     }
 
     @Override
@@ -96,5 +129,4 @@ public class EventServiceImpl implements EventService {
         return Mapper.mapToEventResponseDto(eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id)));
     }
-
 }

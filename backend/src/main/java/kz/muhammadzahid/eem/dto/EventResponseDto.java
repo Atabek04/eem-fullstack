@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -29,4 +31,19 @@ public class EventResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Set<Long> tagIds;
+    
+    // New fields for availability tracking
+    private Integer registeredAttendeesCount;
+    private boolean hasAvailablePlaces;
+    
+    // New fields for event images
+    @Builder.Default
+    private List<EventImageDto> images = new ArrayList<>();
+    private Long coverImageId;
+    
+    // Additional metadata fields
+    private String organizerNotes;
+    private String externalRegistrationLink;
+    private boolean publiclyVisible;
+    private boolean registrationRequired;
 }

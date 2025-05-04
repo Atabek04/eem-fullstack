@@ -12,7 +12,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -52,4 +54,23 @@ public class EventRequestDto {
     private String onlineLink;
 
     private Set<Long> tagIds = new HashSet<>();
+    
+    @Builder.Default
+    private List<EventImageDto> images = new ArrayList<>();
+    
+    @Builder.Default
+    private boolean coverImageExists = false;
+    
+    private Long coverImageId;
+    
+    private String organizerNotes;
+    
+    @Size(max = 255, message = "External registration link cannot exceed 255 characters")
+    private String externalRegistrationLink;
+    
+    @Builder.Default
+    private boolean publiclyVisible = true;
+    
+    @Builder.Default
+    private boolean registrationRequired = true;
 }

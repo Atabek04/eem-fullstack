@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -65,6 +66,7 @@ public class Event extends BaseEntity {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
+    @Builder.Default
     private List<EventImage> images = new ArrayList<>();
 
     @ManyToMany
@@ -74,9 +76,62 @@ public class Event extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     @ToString.Exclude
+    @Builder.Default
     private Set<Tag> tags = new HashSet<>();
 
     private boolean onlineEvent;
 
     private String onlineLink;
+
+    @Builder.Default
+    private Integer registeredAttendeesCount = 0;
+
+    @Builder.Default
+    private boolean hasAvailablePlaces = true;
+
+    @Column(length = 500)
+    private String organizerNotes;
+
+    @Column(length = 255)
+    private String externalRegistrationLink;
+
+    @Builder.Default
+    private boolean publiclyVisible = true;
+
+    @Builder.Default
+    private boolean registrationRequired = true;
+
+    /**
+     * Updates the availability status based on registrations and capacity
+     */
+    public void updateAvailabilityStatus() {
+        if (capacity != null && registeredAttendeesCount != null) {
+            this.hasAvailablePlaces = registeredAttendeesCount < capacity;
+        }
+    }
+
+    /**
+     * Increments the registered attendees count and updates availability
+     * @return true if registration was successful, false if event is full
+     */
+    public boolean registerAttendee() {
+        if (!hasAvailablePlaces) {
+            return false;
+        }
+
+        this.registeredAttendeesCount++;
+        updateAvailabilityStatus();
+        return true;
+    }
+
+    /**
+     * Decrements the registered attendees count and updates availability
+     */
+    public void unregisterAttendee() {
+        if (this.registeredAttendeesCount > 0) {
+            this.registeredAttendeesCount--;
+            this.hasAvailablePlaces = true;
+            updateAvailabilityStatus();
+        }
+    }
 }
