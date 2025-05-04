@@ -60,6 +60,9 @@ public class Registration extends BaseEntity {
     @Column
     private LocalDateTime updatedAt;
 
+    @Column
+    private String comments;
+
     // Use version for optimistic locking to prevent race conditions
     @Version
     private Integer version;

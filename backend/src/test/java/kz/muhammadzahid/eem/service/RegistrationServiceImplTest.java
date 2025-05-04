@@ -5,7 +5,6 @@ import kz.muhammadzahid.eem.dto.RegistrationResponseDto;
 import kz.muhammadzahid.eem.entity.Event;
 import kz.muhammadzahid.eem.entity.EventType;
 import kz.muhammadzahid.eem.entity.Registration;
-import kz.muhammadzahid.eem.entity.Role;
 import kz.muhammadzahid.eem.entity.User;
 import kz.muhammadzahid.eem.exception.AlreadyRegisteredException;
 import kz.muhammadzahid.eem.exception.EventFullException;
@@ -24,8 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;

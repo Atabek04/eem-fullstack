@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class Tag extends BaseEntity {
     private String colorCode;
 
     @ManyToMany(mappedBy = "tags")
+    @Builder.Default
     private Set<Event> events = new HashSet<>();
 
     public Tag(String technology, String eventsRelatedToTechnology, String hashtag) {

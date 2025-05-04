@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,5 +31,6 @@ public class City extends BaseEntity {
 
     @OneToMany(mappedBy = "city")
     @ToString.Exclude
+    @Builder.Default
     private List<Event> events = new ArrayList<>();
 }

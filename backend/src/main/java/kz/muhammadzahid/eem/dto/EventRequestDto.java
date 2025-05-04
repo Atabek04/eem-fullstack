@@ -53,6 +53,7 @@ public class EventRequestDto {
 
     private String onlineLink;
 
+    @Builder.Default
     private Set<Long> tagIds = new HashSet<>();
     
     @Builder.Default

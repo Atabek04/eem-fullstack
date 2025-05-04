@@ -8,14 +8,15 @@ import kz.muhammadzahid.eem.exception.EventFullException;
 import kz.muhammadzahid.eem.service.RegistrationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ public class RegistrationControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private RegistrationService registrationService;
 
     private RegistrationRequestDto requestDto;
@@ -74,7 +75,7 @@ public class RegistrationControllerTest {
     @WithMockUser
     public void testRegisterForEvent_Success() throws Exception {
         // Arrange
-        when(registrationService.registerForEvent(eq(1L), any(RegistrationRequestDto.class)))
+        when(registrationService.registerForEvent(eq(1L), org.mockito.ArgumentMatchers.any(RegistrationRequestDto.class)))
                 .thenReturn(responseDto);
 
         // Act & Assert
@@ -92,7 +93,7 @@ public class RegistrationControllerTest {
     @WithMockUser
     public void testRegisterForEvent_AlreadyRegistered() throws Exception {
         // Arrange
-        when(registrationService.registerForEvent(eq(1L), any(RegistrationRequestDto.class)))
+        when(registrationService.registerForEvent(eq(1L), org.mockito.ArgumentMatchers.any(RegistrationRequestDto.class)))
                 .thenThrow(new AlreadyRegisteredException("User is already registered for this event"));
 
         // Act & Assert
@@ -106,7 +107,7 @@ public class RegistrationControllerTest {
     @WithMockUser
     public void testRegisterForEvent_EventFull() throws Exception {
         // Arrange
-        when(registrationService.registerForEvent(eq(1L), any(RegistrationRequestDto.class)))
+        when(registrationService.registerForEvent(eq(1L), org.mockito.ArgumentMatchers.any(RegistrationRequestDto.class)))
                 .thenThrow(new EventFullException("Event is already at full capacity"));
 
         // Act & Assert
@@ -152,7 +153,7 @@ public class RegistrationControllerTest {
     @WithMockUser
     public void testGetEventRegistrations() throws Exception {
         // Arrange
-        when(registrationService.getEventRegistrations(eq(1L), any(Pageable.class)))
+        when(registrationService.getEventRegistrations(eq(1L), ArgumentMatchers.<Pageable>any()))
                 .thenReturn(new PageImpl<>(Collections.singletonList(responseDto)));
 
         // Act & Assert
