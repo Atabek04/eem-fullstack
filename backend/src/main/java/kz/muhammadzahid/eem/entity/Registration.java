@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +26,7 @@ import java.util.UUID;
         @Index(name = "idx_reg_user", columnList = "user_id"),
         @Index(name = "idx_reg_code", columnList = "registrationCode")
 })
-@ToString(callSuper = true, exclude = {"event", "user", "checkedInBy"})
+@ToString(callSuper = true, exclude = {"event", "user"})
 @Getter
 @Setter
 @SuperBuilder
@@ -41,45 +42,58 @@ public class Registration extends BaseEntity {
     private User user;
 
     @Column(nullable = false)
-    private LocalDateTime registrationDate;
+    private LocalDateTime registrationTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RegistrationStatus status;
 
-    private boolean checkedIn = false;
-    private LocalDateTime checkInTime;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "checked_in_by")
-    private User checkedInBy;
-
     @Column(unique = true, length = 36)
     private String registrationCode;
 
     @Column(length = 500)
-    private String comments;
+    private String cancelReason;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime updatedAt;
+
+    // Use version for optimistic locking to prevent race conditions
+    @Version
+    private Integer version;
 
     public enum RegistrationStatus {
-        PENDING, CONFIRMED, CANCELLED, WAITLISTED
+        CONFIRMED, CANCELLED
     }
 
     @PrePersist
     protected void onCreate() {
-        if (registrationDate == null) {
-            registrationDate = LocalDateTime.now();
+        if (registrationTime == null) {
+            registrationTime = LocalDateTime.now();
         }
         if (registrationCode == null) {
             registrationCode = UUID.randomUUID().toString();
         }
         if (status == null) {
-            status = RegistrationStatus.PENDING;
+            status = RegistrationStatus.CONFIRMED;
         }
+        createdAt = LocalDateTime.now();
     }
 
-    public void checkIn(User checkedInBy) {
-        this.checkedIn = true;
-        this.checkInTime = LocalDateTime.now();
-        this.checkedInBy = checkedInBy;
+    /**
+     * Cancel this registration
+     * @param reason Optional reason for cancellation
+     */
+    public void cancel(String reason) {
+        this.status = RegistrationStatus.CANCELLED;
+        this.cancelReason = reason;
+        this.updatedAt = LocalDateTime.now();
+        
+        // Update event capacity counter
+        if (event != null) {
+            event.unregisterAttendee();
+        }
     }
 }

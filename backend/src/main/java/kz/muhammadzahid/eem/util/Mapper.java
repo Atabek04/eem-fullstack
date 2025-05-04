@@ -3,6 +3,8 @@ package kz.muhammadzahid.eem.util;
 import kz.muhammadzahid.eem.dto.CityDto;
 import kz.muhammadzahid.eem.dto.EventImageDto;
 import kz.muhammadzahid.eem.dto.EventResponseDto;
+import kz.muhammadzahid.eem.dto.RegistrationRequestDto;
+import kz.muhammadzahid.eem.dto.RegistrationResponseDto;
 import kz.muhammadzahid.eem.dto.TagDto;
 import kz.muhammadzahid.eem.dto.TagRequest;
 import kz.muhammadzahid.eem.dto.UserRequest;
@@ -10,6 +12,7 @@ import kz.muhammadzahid.eem.dto.UserResponse;
 import kz.muhammadzahid.eem.entity.City;
 import kz.muhammadzahid.eem.entity.Event;
 import kz.muhammadzahid.eem.entity.EventImage;
+import kz.muhammadzahid.eem.entity.Registration;
 import kz.muhammadzahid.eem.entity.Tag;
 import kz.muhammadzahid.eem.entity.User;
 import lombok.experimental.UtilityClass;
@@ -156,5 +159,75 @@ public class Mapper {
                 .isCoverImage(imageDto.isCoverImage())
                 .event(event)
                 .build();
+    }
+    
+    /**
+     * Map a Registration entity to a RegistrationResponseDto
+     */
+    public RegistrationResponseDto mapToRegistrationResponseDto(Registration registration) {
+        if (registration == null) {
+            return null;
+        }
+        
+        Event event = registration.getEvent();
+        User user = registration.getUser();
+        
+        String eventLocation = "";
+        if (event.isOnlineEvent() && event.getOnlineLink() != null) {
+            eventLocation = "Online: " + event.getOnlineLink();
+        } else if (event.getCity() != null && event.getAddress() != null) {
+            eventLocation = event.getCity().getName() + ", " + event.getAddress();
+        }
+        
+        String userFullName = "";
+        if (user != null) {
+            userFullName = (user.getFirstName() != null ? user.getFirstName() : "") + " " +
+                          (user.getLastName() != null ? user.getLastName() : "");
+            userFullName = userFullName.trim();
+        }
+        
+        return RegistrationResponseDto.builder()
+                .id(registration.getId())
+                .eventId(event.getId())
+                .eventTitle(event.getTitle())
+                .userId(user.getId())
+                .username(user.getUsername())
+                .userFullName(userFullName)
+                .registrationCode(registration.getRegistrationCode())
+                .registrationTime(registration.getRegistrationTime())
+                .status(registration.getStatus().name())
+                .comments(registration.getCancelReason())
+                .cancelReason(registration.getCancelReason())
+                .eventStartDateTime(event.getStartDateTime())
+                .eventEndDateTime(event.getEndDateTime())
+                .eventLocation(eventLocation)
+                .build();
+    }
+    
+    /**
+     * Map a list of Registration entities to RegistrationResponseDtos
+     */
+    public List<RegistrationResponseDto> mapToRegistrationResponseDtos(List<Registration> registrations) {
+        if (registrations == null) {
+            return List.of();
+        }
+        return registrations.stream()
+                .map(Mapper::mapToRegistrationResponseDto)
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * Create a new Registration entity from a request, event and user
+     */
+    public Registration createRegistration(RegistrationRequestDto requestDto, Event event, User user) {
+        Registration registration = Registration.builder()
+                .event(event)
+                .user(user)
+                .registrationTime(LocalDateTime.now())
+                .status(Registration.RegistrationStatus.CONFIRMED)
+                .comments(requestDto != null ? requestDto.getComments() : null)
+                .build();
+        
+        return registration;
     }
 }

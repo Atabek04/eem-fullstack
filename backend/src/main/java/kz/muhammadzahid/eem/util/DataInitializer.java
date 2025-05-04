@@ -1,10 +1,13 @@
 package kz.muhammadzahid.eem.util;
 
 import kz.muhammadzahid.eem.entity.City;
+import kz.muhammadzahid.eem.entity.Event;
+import kz.muhammadzahid.eem.entity.EventType;
 import kz.muhammadzahid.eem.entity.Role;
 import kz.muhammadzahid.eem.entity.Tag;
 import kz.muhammadzahid.eem.entity.User;
 import kz.muhammadzahid.eem.repo.CityRepository;
+import kz.muhammadzahid.eem.repo.EventRepository;
 import kz.muhammadzahid.eem.repo.RoleRepository;
 import kz.muhammadzahid.eem.repo.TagRepository;
 import kz.muhammadzahid.eem.repo.UserRepository;
@@ -14,10 +17,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -29,14 +35,14 @@ public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final CityRepository cityRepository;
     private final TagRepository tagRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public void run(String... args) {
         initRoles();
         initializeTags();
         initializeKazakhstanCities();
-
-
+        initializeEvents();
     }
 
     private void initializeTags() {
@@ -125,6 +131,85 @@ public class DataInitializer implements CommandLineRunner {
 
             cityRepository.saveAll(cities);
             log.info("Initialized {} Kazakhstan cities", cities.size());
+        }
+    }
+
+    private void initializeEvents() {
+        if (eventRepository.count() == 0) {
+            log.info("Initializing sample events");
+            
+            User admin = userRepository.findByEmail("admin1@gmail.com")
+                    .orElseThrow(() -> new RuntimeException("Admin user not found!"));
+                    
+            // Find Almaty city
+            City almaty = cityRepository.findByName("Almaty")
+                    .orElseThrow(() -> new RuntimeException("Almaty city not found!"));
+                    
+            // Find Nur-Sultan (Astana) city
+            City nurSultan = cityRepository.findByName("Nur-Sultan")
+                    .orElseThrow(() -> new RuntimeException("Nur-Sultan city not found!"));
+            
+            // Get some tags
+            Optional<Tag> techTag = tagRepository.findByName("Technology");
+            Optional<Tag> eduTag = tagRepository.findByName("Education");
+            Optional<Tag> bizTag = tagRepository.findByName("Business");
+            
+            Set<Tag> techConfTags = new HashSet<>();
+            techTag.ifPresent(techConfTags::add);
+            eduTag.ifPresent(techConfTags::add);
+            
+            Set<Tag> businessMeetupTags = new HashSet<>();
+            bizTag.ifPresent(businessMeetupTags::add);
+            techTag.ifPresent(businessMeetupTags::add);
+            
+            // Create first event - Tech conference in Almaty
+            Event techConference = Event.builder()
+                    .title("Kazakhstan Tech Conference 2025")
+                    .description("Join us for the biggest tech conference in Kazakhstan. " +
+                            "Leading experts will share insights on AI, blockchain, and cloud technologies. " +
+                            "Network with professionals and discover new opportunities in the tech industry.")
+                    .startDateTime(LocalDateTime.now().plusMonths(2))
+                    .endDateTime(LocalDateTime.now().plusMonths(2).plusDays(2))
+                    .city(almaty)
+                    .address("Almaty Arena, Koyankus Street")
+                    .eventType(EventType.CONFERENCE)
+                    .capacity(500)
+                    .registeredAttendeesCount(0)
+                    .hasAvailablePlaces(true)
+                    .createdBy(admin)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .tags(techConfTags)
+                    .onlineEvent(false)
+                    .publiclyVisible(true)
+                    .registrationRequired(true)
+                    .build();
+            
+            // Create second event - Business meetup in Nur-Sultan (online)
+            Event businessMeetup = Event.builder()
+                    .title("Startup Investors Meetup")
+                    .description("Virtual meetup connecting startup founders with potential investors. " +
+                            "Pitch your ideas or listen to innovative business proposals. " +
+                            "Special focus on fintech and green technology startups.")
+                    .startDateTime(LocalDateTime.now().plusMonths(1))
+                    .endDateTime(LocalDateTime.now().plusMonths(1).plusHours(3))
+                    .city(nurSultan)
+                    .eventType(EventType.MEETUP)
+                    .capacity(100)
+                    .registeredAttendeesCount(0)
+                    .hasAvailablePlaces(true)
+                    .createdBy(admin)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .tags(businessMeetupTags)
+                    .onlineEvent(true)
+                    .onlineLink("https://meet.google.com/startup-meetup")
+                    .publiclyVisible(true)
+                    .registrationRequired(true)
+                    .build();
+                    
+            eventRepository.saveAll(List.of(techConference, businessMeetup));
+            log.info("Sample events initialized: {} events created", 2);
         }
     }
 

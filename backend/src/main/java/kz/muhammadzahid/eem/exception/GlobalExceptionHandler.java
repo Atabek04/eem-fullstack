@@ -16,7 +16,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -143,6 +142,34 @@ public class GlobalExceptionHandler {
         log.error("Invalid role error: {}", ex.getMessage());
         String message = ex.getMessage() + " " + RoleUtil.getAvailableRolesMessage();
         return buildErrorResponse(HttpStatus.BAD_REQUEST, message, null);
+    }
+
+    @ExceptionHandler(EventFullException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEventFullException(EventFullException ex) {
+        log.error("Event capacity error: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(AlreadyRegisteredException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleAlreadyRegisteredException(AlreadyRegisteredException ex) {
+        log.error("Registration conflict: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(RegistrationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleRegistrationNotFoundException(RegistrationNotFoundException ex) {
+        log.error("Registration not found: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleUserNotFoundException(UserNotFoundException ex) {
+        log.error("User not found: {}", ex.getMessage());
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
     private ErrorResponse buildErrorResponse(HttpStatus status, String message, List<String> errors) {
