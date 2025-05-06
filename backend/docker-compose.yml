@@ -1,6 +1,6 @@
 services:
   app:
-    image: eem-app:0.0.1-SNAPSHOT
+    image: eem-app:0.1.0
     container_name: eem-app
     depends_on:
       - postgres

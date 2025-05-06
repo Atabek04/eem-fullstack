@@ -165,13 +165,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleUserNotFoundException(UserNotFoundException ex) {
-        log.error("User not found: {}", ex.getMessage());
-        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), null);
-    }
-
     private ErrorResponse buildErrorResponse(HttpStatus status, String message, List<String> errors) {
         return new ErrorResponse(
                 status.value(),
