@@ -202,16 +202,6 @@ public class RegistrationServiceImpl implements RegistrationService {
      * Validates if an event is available for registration
      */
     private void validateEventForRegistration(Event event) {
-        // Check if the event requires registration
-        if (!event.isRegistrationRequired()) {
-            throw new BadRequestException("This event does not require registration");
-        }
-        
-        // Check if the event is public
-        if (!event.isPubliclyVisible()) {
-            throw new BadRequestException("This event is not available for public registration");
-        }
-        
         // Check if the event has not already started
         if (event.getStartDateTime().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Registration is closed: Event has already started");

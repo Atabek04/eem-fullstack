@@ -89,18 +89,6 @@ public class Event extends BaseEntity {
     @Builder.Default
     private boolean hasAvailablePlaces = true;
 
-    @Column(length = 500)
-    private String organizerNotes;
-
-    @Column(length = 255)
-    private String externalRegistrationLink;
-
-    @Builder.Default
-    private boolean publiclyVisible = true;
-
-    @Builder.Default
-    private boolean registrationRequired = true;
-
     /**
      * Updates the availability status based on registrations and capacity
      */

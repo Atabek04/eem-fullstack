@@ -74,10 +74,6 @@ public class EventServiceImpl implements EventService {
                 // Add new fields
                 .registeredAttendeesCount(0)
                 .hasAvailablePlaces(true)
-                .organizerNotes(eventRequestDto.getOrganizerNotes())
-                .externalRegistrationLink(eventRequestDto.getExternalRegistrationLink())
-                .publiclyVisible(eventRequestDto.isPubliclyVisible())
-                .registrationRequired(eventRequestDto.isRegistrationRequired())
                 .build();
 
         if (event.isOnlineEvent() && eventRequestDto.getOnlineLink() != null) {
@@ -94,17 +90,27 @@ public class EventServiceImpl implements EventService {
         if (eventRequestDto.getImages() != null && !eventRequestDto.getImages().isEmpty()) {
             List<EventImage> eventImages = new ArrayList<>();
             
-            for (EventImageDto imageDto : eventRequestDto.getImages()) {
+            // First pass: create all image entities
+            for (int i = 0; i < eventRequestDto.getImages().size(); i++) {
+                EventImageDto imageDto = eventRequestDto.getImages().get(i);
                 EventImage image = Mapper.mapToEventImage(imageDto, event);
-                eventImages.add(image);
                 
-                // If this is marked as cover image or if coverImageId matches
-                if (imageDto.isCoverImage() || 
-                    (eventRequestDto.getCoverImageId() != null && 
-                     imageDto.getId() != null && 
-                     imageDto.getId().equals(eventRequestDto.getCoverImageId()))) {
+                // Set cover image based on different strategies:
+                // 1. If this specific image has isCoverImage flag
+                // 2. If coverImageId matches this image's ID (for existing images)
+                // 3. If coverImageIndex matches this image's position (for new images)
+                boolean isCoverByFlag = imageDto.isCoverImage();
+                boolean isCoverById = eventRequestDto.getCoverImageId() != null && 
+                                     imageDto.getId() != null && 
+                                     imageDto.getId().equals(eventRequestDto.getCoverImageId());
+                boolean isCoverByIndex = eventRequestDto.getCoverImageIndex() != null && 
+                                        eventRequestDto.getCoverImageIndex() == i;
+                                        
+                if (isCoverByFlag || isCoverById || isCoverByIndex) {
                     image.setCoverImage(true);
                 }
+                
+                eventImages.add(image);
             }
             
             event.setImages(eventImages);

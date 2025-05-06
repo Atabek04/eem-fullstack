@@ -59,19 +59,9 @@ public class EventRequestDto {
     @Builder.Default
     private List<EventImageDto> images = new ArrayList<>();
     
-    @Builder.Default
-    private boolean coverImageExists = false;
-    
+    // Used for existing images when updating an event
     private Long coverImageId;
     
-    private String organizerNotes;
-    
-    @Size(max = 255, message = "External registration link cannot exceed 255 characters")
-    private String externalRegistrationLink;
-    
-    @Builder.Default
-    private boolean publiclyVisible = true;
-    
-    @Builder.Default
-    private boolean registrationRequired = true;
+    // Used for new images when creating an event (array index of the image)
+    private Integer coverImageIndex;
 }

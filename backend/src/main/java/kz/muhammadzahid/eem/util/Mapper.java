@@ -105,10 +105,6 @@ public class Mapper {
                         .collect(Collectors.toSet()))
                 .registeredAttendeesCount(event.getRegisteredAttendeesCount())
                 .hasAvailablePlaces(event.isHasAvailablePlaces())
-                .publiclyVisible(event.isPubliclyVisible())
-                .registrationRequired(event.isRegistrationRequired())
-                .organizerNotes(event.getOrganizerNotes())
-                .externalRegistrationLink(event.getExternalRegistrationLink())
                 .images(mapEventImagesToDtos(event.getImages()))
                 .build();
 

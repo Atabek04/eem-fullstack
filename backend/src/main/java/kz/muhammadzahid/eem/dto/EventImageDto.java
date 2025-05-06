@@ -22,5 +22,6 @@ public class EventImageDto {
     @Size(max = 255, message = "Description cannot exceed 255 characters")
     private String description;
     
-    private boolean isCoverImage;
+    @Builder.Default
+    private boolean isCoverImage = false;
 }

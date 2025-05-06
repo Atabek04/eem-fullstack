@@ -40,10 +40,4 @@ public class EventResponseDto {
     @Builder.Default
     private List<EventImageDto> images = new ArrayList<>();
     private Long coverImageId;
-    
-    // Additional metadata fields
-    private String organizerNotes;
-    private String externalRegistrationLink;
-    private boolean publiclyVisible;
-    private boolean registrationRequired;
 }
