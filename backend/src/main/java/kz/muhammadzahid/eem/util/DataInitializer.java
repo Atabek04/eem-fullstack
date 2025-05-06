@@ -42,7 +42,6 @@ public class DataInitializer implements CommandLineRunner {
         initRoles();
         initializeTags();
         initializeKazakhstanCities();
-        initializeEvents();
     }
 
     private void initializeTags() {
