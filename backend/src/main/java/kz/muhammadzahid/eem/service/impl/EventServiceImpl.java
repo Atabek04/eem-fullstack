@@ -12,6 +12,7 @@ import kz.muhammadzahid.eem.entity.Tag;
 import kz.muhammadzahid.eem.entity.User;
 import kz.muhammadzahid.eem.repo.CityRepository;
 import kz.muhammadzahid.eem.repo.EventRepository;
+import kz.muhammadzahid.eem.repo.FavoriteEventRepository;
 import kz.muhammadzahid.eem.repo.TagRepository;
 import kz.muhammadzahid.eem.repo.UserRepository;
 import kz.muhammadzahid.eem.security.SecurityUserContext;
@@ -36,6 +37,7 @@ public class EventServiceImpl implements EventService {
     private final CityRepository cityRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final FavoriteEventRepository favoriteEventRepository;
     private final SecurityUserContext securityUserContext;
 
     @Override
@@ -95,15 +97,45 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponseDto> getAllEvents() {
+        // Get current user
+        User currentUser = getCurrentUser();
+        
+        // Get all user's favorite event IDs
+        Set<Long> favoriteEventIds = favoriteEventRepository.findEventIdsByUserId(currentUser.getId());
+        
+        // Map events to DTOs and set favorited flag
         return eventRepository.findAll().stream()
-                .map(Mapper::mapToEventResponseDto)
+                .map(event -> {
+                    EventResponseDto dto = Mapper.mapToEventResponseDto(event);
+                    dto.setFavorited(favoriteEventIds.contains(event.getId()));
+                    return dto;
+                })
                 .toList();
+    }
+    
+    /**
+     * Helper method to get current authenticated user
+     */
+    private User getCurrentUser() {
+        String loggedUserUsername = securityUserContext.getCurrentUserUserName();
+        return userRepository.findByUsername(loggedUserUsername)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + loggedUserUsername));
     }
 
     @Override
     public EventResponseDto getEventById(Long id) {
-        return Mapper.mapToEventResponseDto(eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id)));
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
+        
+        // Create DTO from event
+        EventResponseDto dto = Mapper.mapToEventResponseDto(event);
+        
+        // Check if event is favorited by current user
+        User currentUser = getCurrentUser();
+        boolean isFavorited = favoriteEventRepository.existsByUserAndEvent(currentUser, event);
+        dto.setFavorited(isFavorited);
+        
+        return dto;
     }
     
     @Override
@@ -126,7 +158,16 @@ public class EventServiceImpl implements EventService {
         event.updateAvailabilityStatus();
         
         Event updatedEvent = eventRepository.save(event);
-        return Mapper.mapToEventResponseDto(updatedEvent);
+        
+        // Create DTO from updated event
+        EventResponseDto dto = Mapper.mapToEventResponseDto(updatedEvent);
+        
+        // Check if event is favorited by current user
+        User currentUser = getCurrentUser();
+        boolean isFavorited = favoriteEventRepository.existsByUserAndEvent(currentUser, updatedEvent);
+        dto.setFavorited(isFavorited);
+        
+        return dto;
     }
     
     @Override

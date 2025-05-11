@@ -88,6 +88,7 @@ public class Mapper {
     }
 
     public EventResponseDto mapToEventResponseDto(Event event) {
+        User creator = event.getCreatedBy();
         var eventResponse = EventResponseDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
@@ -97,7 +98,13 @@ public class Mapper {
                 .eventType(event.getEventType())
                 .capacity(event.getCapacity())
                 .online(event.isOnlineEvent())
-                .createdById(event.getCreatedBy().getId())
+                .createdById(creator.getId())
+                // Add creator information
+                .creatorUsername(creator.getUsername())
+                .creatorFirstName(creator.getFirstName())
+                .creatorLastName(creator.getLastName())
+                .creatorEmail(creator.getEmail())
+                .creatorPhoneNumber(creator.getPhoneNumber())
                 .createdAt(event.getCreatedAt())
                 .updatedAt(event.getUpdatedAt())
                 .tagIds(event.getTags().stream()

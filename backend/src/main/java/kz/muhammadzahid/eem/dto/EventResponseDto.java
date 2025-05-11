@@ -28,6 +28,11 @@ public class EventResponseDto {
     private boolean online;
     private String onlineLink;
     private Long createdById;
+    private String creatorUsername;
+    private String creatorFirstName;
+    private String creatorLastName;
+    private String creatorEmail;
+    private String creatorPhoneNumber;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Set<Long> tagIds;
@@ -40,4 +45,8 @@ public class EventResponseDto {
     @Builder.Default
     private List<EventImageDto> images = new ArrayList<>();
     private Long coverImageId;
+    
+    // Favorite status for the current user
+    @Builder.Default
+    private boolean favorited = false;
 }
