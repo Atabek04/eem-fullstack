@@ -47,25 +47,6 @@ public class RegistrationController {
     }
 
     /**
-     * Cancel a registration
-     *
-     * @param eventId The ID of the event
-     * @param registrationId The ID of the registration to cancel
-     * @param requestBody Optional cancellation reason
-     */
-    @DeleteMapping("/{eventId}/registrations/{registrationId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelRegistration(
-            @PathVariable Long eventId,
-            @PathVariable Long registrationId,
-            @RequestBody(required = false) Map<String, String> requestBody) {
-        
-        String reason = requestBody != null ? requestBody.get("reason") : null;
-        log.info("Cancelling registration ID: {} for event ID: {}", registrationId, eventId);
-        registrationService.cancelRegistration(registrationId, reason);
-    }
-
-    /**
      * Get all registrations for an event (organizers and admins only)
      *
      * @param eventId The ID of the event
@@ -118,5 +99,21 @@ public class RegistrationController {
     public List<RegistrationResponseDto> getCurrentUserRegistrations() {
         log.info("Fetching registrations for current user");
         return registrationService.getCurrentUserRegistrations();
+    }
+
+    /**
+     * Delete a registration
+     *
+     * @param eventId The ID of the event
+     * @param registrationId The ID of the registration to delete
+     */
+    @DeleteMapping("/{eventId}/registrations/{registrationId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRegistration(
+            @PathVariable Long eventId,
+            @PathVariable Long registrationId) {
+        
+        log.info("Deleting registration ID: {} for event ID: {}", registrationId, eventId);
+        registrationService.deleteRegistration(registrationId);
     }
 }

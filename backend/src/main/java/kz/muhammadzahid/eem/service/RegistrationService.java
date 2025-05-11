@@ -30,12 +30,11 @@ public interface RegistrationService {
     RegistrationResponseDto registerForEvent(Long eventId, RegistrationRequestDto registrationRequestDto);
     
     /**
-     * Cancel a registration
+     * Delete a registration
      * 
-     * @param registrationId The ID of the registration to cancel
-     * @param reason Optional reason for cancellation
+     * @param registrationId The ID of the registration to delete
      */
-    void cancelRegistration(Long registrationId, String reason);
+    void deleteRegistration(Long registrationId);
     
     /**
      * Get all registrations for the currently authenticated user

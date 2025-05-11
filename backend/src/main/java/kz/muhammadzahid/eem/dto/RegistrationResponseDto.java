@@ -24,9 +24,7 @@ public class RegistrationResponseDto {
     private String username;
     private String registrationCode;
     private LocalDateTime registrationTime;
-    private String status;
     private String comments;
-    private String cancelReason;
     private LocalDateTime eventStartDateTime;
     private LocalDateTime eventEndDateTime;
     private String eventLocation;

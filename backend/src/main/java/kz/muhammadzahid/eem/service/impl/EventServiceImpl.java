@@ -71,7 +71,6 @@ public class EventServiceImpl implements EventService {
                 .createdBy(loggedUser)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                // Add new fields
                 .registeredAttendeesCount(0)
                 .hasAvailablePlaces(true)
                 .build();
@@ -86,37 +85,8 @@ public class EventServiceImpl implements EventService {
             event.setAddress(eventRequestDto.getAddress());
         }
         
-        // Process event images
-        if (eventRequestDto.getImages() != null && !eventRequestDto.getImages().isEmpty()) {
-            List<EventImage> eventImages = new ArrayList<>();
-            
-            // First pass: create all image entities
-            for (int i = 0; i < eventRequestDto.getImages().size(); i++) {
-                EventImageDto imageDto = eventRequestDto.getImages().get(i);
-                EventImage image = Mapper.mapToEventImage(imageDto, event);
-                
-                // Set cover image based on different strategies:
-                // 1. If this specific image has isCoverImage flag
-                // 2. If coverImageId matches this image's ID (for existing images)
-                // 3. If coverImageIndex matches this image's position (for new images)
-                boolean isCoverByFlag = imageDto.isCoverImage();
-                boolean isCoverById = eventRequestDto.getCoverImageId() != null && 
-                                     imageDto.getId() != null && 
-                                     imageDto.getId().equals(eventRequestDto.getCoverImageId());
-                boolean isCoverByIndex = eventRequestDto.getCoverImageIndex() != null && 
-                                        eventRequestDto.getCoverImageIndex() == i;
-                                        
-                if (isCoverByFlag || isCoverById || isCoverByIndex) {
-                    image.setCoverImage(true);
-                }
-                
-                eventImages.add(image);
-            }
-            
-            event.setImages(eventImages);
-        }
+        processEventImages(event, eventRequestDto);
         
-        // Ensure availability status is set correctly
         event.updateAvailabilityStatus();
 
         Event savedEvent = eventRepository.save(event);
@@ -134,5 +104,123 @@ public class EventServiceImpl implements EventService {
     public EventResponseDto getEventById(Long id) {
         return Mapper.mapToEventResponseDto(eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id)));
+    }
+    
+    @Override
+    @Transactional
+    public EventResponseDto updateEvent(Long id, EventRequestDto eventRequestDto) {
+        if (eventRequestDto.getEndDateTime().isBefore(eventRequestDto.getStartDateTime())) {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
+        
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
+        
+        updateEventFields(event, eventRequestDto);
+        event.setUpdatedAt(LocalDateTime.now());
+        
+        processTagsForEvent(event, eventRequestDto);
+        processLocationInfo(event, eventRequestDto);
+        processEventImages(event, eventRequestDto);
+        
+        event.updateAvailabilityStatus();
+        
+        Event updatedEvent = eventRepository.save(event);
+        return Mapper.mapToEventResponseDto(updatedEvent);
+    }
+    
+    @Override
+    @Transactional
+    public void deleteEvent(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + id));
+        
+        eventRepository.delete(event);
+    }
+    
+    private void updateEventFields(Event event, EventRequestDto dto) {
+        event.setTitle(dto.getTitle());
+        event.setDescription(dto.getDescription());
+        event.setStartDateTime(dto.getStartDateTime());
+        event.setEndDateTime(dto.getEndDateTime());
+        event.setEventType(dto.getEventType());
+        event.setCapacity(dto.getCapacity());
+        event.setOnlineEvent(dto.getOnline());
+        
+        if (dto.getOnline()) {
+            event.setOnlineLink(dto.getOnlineLink());
+        }
+    }
+    
+    private void processTagsForEvent(Event event, EventRequestDto dto) {
+        if (dto.getTagIds() != null) {
+            Set<Tag> tags = new HashSet<>(tagRepository.findAllById(dto.getTagIds()));
+            
+            if (!dto.getTagIds().isEmpty() && tags.size() != dto.getTagIds().size()) {
+                throw new EntityNotFoundException("One or more tags not found");
+            }
+            
+            event.getTags().clear();
+            event.getTags().addAll(tags);
+        }
+    }
+    
+    private void processLocationInfo(Event event, EventRequestDto dto) {
+        if (event.isOnlineEvent()) {
+            event.setCity(null);
+            event.setAddress(null);
+            event.setOnlineLink(dto.getOnlineLink());
+        } else if (dto.getCityId() != null && dto.getAddress() != null) {
+            City city = cityRepository.findById(dto.getCityId())
+                    .orElseThrow(() -> new EntityNotFoundException("City not found with id: " + dto.getCityId()));
+            
+            event.setCity(city);
+            event.setAddress(dto.getAddress());
+            event.setOnlineLink(null);
+        }
+    }
+    
+    private void processEventImages(Event event, EventRequestDto dto) {
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
+            List<EventImage> imagesToKeep = new ArrayList<>();
+            
+            for (int i = 0; i < dto.getImages().size(); i++) {
+                EventImageDto imageDto = dto.getImages().get(i);
+                EventImage image;
+                
+                if (imageDto.getId() != null) {
+                    image = event.getImages().stream()
+                            .filter(img -> img.getId().equals(imageDto.getId()))
+                            .findFirst()
+                            .orElseGet(() -> Mapper.mapToEventImage(imageDto, event));
+                    
+                    image.setImageUrl(imageDto.getImageUrl());
+                    image.setDescription(imageDto.getDescription());
+                } else {
+                    image = Mapper.mapToEventImage(imageDto, event);
+                }
+                
+                boolean isCoverByFlag = imageDto.isCoverImage();
+                boolean isCoverById = dto.getCoverImageId() != null && 
+                                    imageDto.getId() != null && 
+                                    imageDto.getId().equals(dto.getCoverImageId());
+                boolean isCoverByIndex = dto.getCoverImageIndex() != null &&
+                                      dto.getCoverImageIndex() == i;
+                
+                if (isCoverByFlag || isCoverById || isCoverByIndex) {
+                    resetCoverImageFlags(event);
+                    image.setCoverImage(true);
+                }
+                
+                imagesToKeep.add(image);
+            }
+            
+            event.getImages().clear();
+            event.getImages().addAll(imagesToKeep);
+        }
+    }
+    
+    private void resetCoverImageFlags(Event event) {
+        event.getImages().forEach(image -> image.setCoverImage(false));
     }
 }

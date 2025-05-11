@@ -33,3 +33,10 @@ build/
 .vscode/
 
 **/application.yml
+
+.DS_Store
+**/.DS_Store
+
+.idea/
+
+**/.idea/

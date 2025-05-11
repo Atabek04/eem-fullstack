@@ -84,7 +84,6 @@ public class RegistrationServiceImplTest {
                 .event(testEvent)
                 .user(testUser)
                 .registrationTime(LocalDateTime.now())
-                .status(Registration.RegistrationStatus.CONFIRMED)
                 .build();
     }
 
@@ -95,7 +94,7 @@ public class RegistrationServiceImplTest {
         when(securityUserContext.getCurrentUserUserName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(eventRepository.findById(1L)).thenReturn(Optional.of(testEvent));
-        when(registrationRepository.existsByUserIdAndEventIdAndStatus(1L, 1L, Registration.RegistrationStatus.CONFIRMED)).thenReturn(false);
+        when(registrationRepository.existsByUserIdAndEventId(1L, 1L)).thenReturn(false);
         when(registrationRepository.save(any(Registration.class))).thenReturn(testRegistration);
 
         // Act
@@ -119,7 +118,7 @@ public class RegistrationServiceImplTest {
         when(securityUserContext.getCurrentUserUserName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(eventRepository.findById(1L)).thenReturn(Optional.of(testEvent));
-        when(registrationRepository.existsByUserIdAndEventIdAndStatus(1L, 1L, Registration.RegistrationStatus.CONFIRMED)).thenReturn(true);
+        when(registrationRepository.existsByUserIdAndEventId(1L, 1L)).thenReturn(true);
 
         // Act & Assert
         assertThrows(AlreadyRegisteredException.class, () -> {
@@ -139,7 +138,7 @@ public class RegistrationServiceImplTest {
         when(securityUserContext.getCurrentUserUserName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(eventRepository.findById(1L)).thenReturn(Optional.of(testEvent));
-        when(registrationRepository.existsByUserIdAndEventIdAndStatus(1L, 1L, Registration.RegistrationStatus.CONFIRMED)).thenReturn(false);
+        when(registrationRepository.existsByUserIdAndEventId(1L, 1L)).thenReturn(false);
 
         // Act & Assert
         assertThrows(EventFullException.class, () -> {
@@ -150,19 +149,17 @@ public class RegistrationServiceImplTest {
     }
 
     @Test
-    public void testCancelRegistration_Success() {
+    public void testDeleteRegistration_Success() {
         // Arrange
         when(securityUserContext.getCurrentUserUserName()).thenReturn("testuser");
         when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(testUser));
         when(registrationRepository.findById(1L)).thenReturn(Optional.of(testRegistration));
 
         // Act
-        registrationService.cancelRegistration(1L, "Changed my mind");
+        registrationService.deleteRegistration(1L);
 
         // Assert
-        verify(registrationRepository).save(any(Registration.class));
+        verify(registrationRepository).delete(any(Registration.class));
         verify(eventRepository).save(any(Event.class));
-        assertEquals(Registration.RegistrationStatus.CANCELLED, testRegistration.getStatus());
-        assertEquals("Changed my mind", testRegistration.getCancelReason());
     }
 }

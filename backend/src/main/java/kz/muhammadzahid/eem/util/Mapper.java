@@ -191,9 +191,7 @@ public class Mapper {
                 .userFullName(userFullName)
                 .registrationCode(registration.getRegistrationCode())
                 .registrationTime(registration.getRegistrationTime())
-                .status(registration.getStatus().name())
-                .comments(registration.getCancelReason())
-                .cancelReason(registration.getCancelReason())
+                .comments(registration.getComments())
                 .eventStartDateTime(event.getStartDateTime())
                 .eventEndDateTime(event.getEndDateTime())
                 .eventLocation(eventLocation)
@@ -220,7 +218,6 @@ public class Mapper {
                 .event(event)
                 .user(user)
                 .registrationTime(LocalDateTime.now())
-                .status(Registration.RegistrationStatus.CONFIRMED)
                 .comments(requestDto != null ? requestDto.getComments() : null)
                 .build();
         

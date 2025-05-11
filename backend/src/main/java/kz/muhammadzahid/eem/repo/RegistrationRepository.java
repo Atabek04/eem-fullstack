@@ -1,7 +1,6 @@
 package kz.muhammadzahid.eem.repo;
 
 import kz.muhammadzahid.eem.entity.Registration;
-import kz.muhammadzahid.eem.entity.Registration.RegistrationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,20 +24,20 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     Page<Registration> findByEventId(Long eventId, Pageable pageable);
     
     /**
-     * Find active (confirmed) registration for a specific user and event
+     * Find registration for a specific user and event
      */
-    Optional<Registration> findByUserIdAndEventIdAndStatus(Long userId, Long eventId, RegistrationStatus status);
+    Optional<Registration> findByUserIdAndEventId(Long userId, Long eventId);
     
     /**
-     * Check if a user has an active registration for an event
+     * Check if a user has a registration for an event
      */
-    boolean existsByUserIdAndEventIdAndStatus(Long userId, Long eventId, RegistrationStatus status);
+    boolean existsByUserIdAndEventId(Long userId, Long eventId);
     
     /**
-     * Count active registrations for an event
+     * Count registrations for an event
      */
-    @Query("SELECT COUNT(r) FROM Registration r WHERE r.event.id = :eventId AND r.status = 'CONFIRMED'")
-    int countActiveRegistrationsByEventId(Long eventId);
+    @Query("SELECT COUNT(r) FROM Registration r WHERE r.event.id = :eventId")
+    int countRegistrationsByEventId(Long eventId);
     
     /**
      * Find by registration code

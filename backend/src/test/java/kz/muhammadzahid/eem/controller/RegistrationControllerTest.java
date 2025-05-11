@@ -64,7 +64,7 @@ public class RegistrationControllerTest {
                 .userFullName("Test User")
                 .registrationCode("abcd-1234")
                 .registrationTime(LocalDateTime.now())
-                .status("CONFIRMED")
+                .comments("Looking forward to this event!")
                 .eventStartDateTime(LocalDateTime.now().plusDays(1))
                 .eventEndDateTime(LocalDateTime.now().plusDays(1).plusHours(2))
                 .eventLocation("Online: https://example.com/meeting")
@@ -85,8 +85,7 @@ public class RegistrationControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.eventId", is(1)))
-                .andExpect(jsonPath("$.eventTitle", is("Test Event")))
-                .andExpect(jsonPath("$.status", is("CONFIRMED")));
+                .andExpect(jsonPath("$.eventTitle", is("Test Event")));
     }
 
     @Test
@@ -119,19 +118,16 @@ public class RegistrationControllerTest {
 
     @Test
     @WithMockUser
-    public void testCancelRegistration() throws Exception {
+    public void testDeleteRegistration() throws Exception {
         // Arrange
-        Map<String, String> cancelRequest = new HashMap<>();
-        cancelRequest.put("reason", "Can't make it");
-        doNothing().when(registrationService).cancelRegistration(1L, "Can't make it");
+        doNothing().when(registrationService).deleteRegistration(1L);
 
         // Act & Assert
         mockMvc.perform(delete("/api/v1/events/1/registrations/1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(cancelRequest)))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
-        verify(registrationService).cancelRegistration(1L, "Can't make it");
+        verify(registrationService).deleteRegistration(1L);
     }
 
     @Test
@@ -145,8 +141,7 @@ public class RegistrationControllerTest {
         mockMvc.perform(get("/api/v1/events/user/registrations"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].eventTitle", is("Test Event")))
-                .andExpect(jsonPath("$[0].status", is("CONFIRMED")));
+                .andExpect(jsonPath("$[0].eventTitle", is("Test Event")));
     }
 
     @Test

@@ -59,8 +59,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         validateEventForRegistration(event);
 
         // Check if user is already registered
-        if (registrationRepository.existsByUserIdAndEventIdAndStatus(
-                currentUser.getId(), eventId, Registration.RegistrationStatus.CONFIRMED)) {
+        if (registrationRepository.existsByUserIdAndEventId(currentUser.getId(), eventId)) {
             throw new AlreadyRegisteredException("User is already registered for this event");
         }
 
@@ -89,7 +88,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     @Transactional
-    public void cancelRegistration(Long registrationId, String reason) {
+    public void deleteRegistration(Long registrationId) {
         // Get current authenticated user
         String loggedUserUsername = securityUserContext.getCurrentUserUserName();
         User currentUser = userRepository.findByUsername(loggedUserUsername)
@@ -103,23 +102,20 @@ public class RegistrationServiceImpl implements RegistrationService {
         if (!registration.getUser().getId().equals(currentUser.getId()) && 
                 !currentUser.getRoles().stream().anyMatch(role -> 
                         role.getName().name().equals("ROLE_ADMIN"))) {
-            throw new BadRequestException("You do not have permission to cancel this registration");
+            throw new BadRequestException("You do not have permission to delete this registration");
         }
 
-        // Validate registration is not already cancelled
-        if (registration.getStatus() == Registration.RegistrationStatus.CANCELLED) {
-            throw new BadRequestException("Registration is already cancelled");
-        }
-
-        // Cancel the registration - this also decrements the count in the event
-        registration.cancel(reason);
-
-        // Save both registration and updated event
+        // Get the event before deleting the registration
         Event event = registration.getEvent();
-        registrationRepository.save(registration);
+        
+        // Delete the registration
+        registrationRepository.delete(registration);
+        
+        // Update event capacity counter
+        event.unregisterAttendee();
         eventRepository.save(event);
 
-        log.info("Registration {} for event {} cancelled", registrationId, event.getTitle());
+        log.info("Registration {} for event {} deleted", registrationId, event.getTitle());
     }
 
     @Override
@@ -194,8 +190,7 @@ public class RegistrationServiceImpl implements RegistrationService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + loggedUserUsername));
 
         // Check if user is registered
-        return registrationRepository.existsByUserIdAndEventIdAndStatus(
-                currentUser.getId(), eventId, Registration.RegistrationStatus.CONFIRMED);
+        return registrationRepository.existsByUserIdAndEventId(currentUser.getId(), eventId);
     }
 
     /**

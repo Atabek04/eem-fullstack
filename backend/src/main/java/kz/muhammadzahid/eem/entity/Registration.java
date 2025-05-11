@@ -2,8 +2,6 @@ package kz.muhammadzahid.eem.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -44,15 +42,8 @@ public class Registration extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime registrationTime;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RegistrationStatus status;
-
     @Column(unique = true, length = 36)
     private String registrationCode;
-
-    @Column(length = 500)
-    private String cancelReason;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -63,13 +54,9 @@ public class Registration extends BaseEntity {
     @Column
     private String comments;
 
-    // Use version for optimistic locking to prevent race conditions
+    // optimistic locking to prevent race conditions
     @Version
     private Integer version;
-
-    public enum RegistrationStatus {
-        CONFIRMED, CANCELLED
-    }
 
     @PrePersist
     protected void onCreate() {
@@ -79,24 +66,6 @@ public class Registration extends BaseEntity {
         if (registrationCode == null) {
             registrationCode = UUID.randomUUID().toString();
         }
-        if (status == null) {
-            status = RegistrationStatus.CONFIRMED;
-        }
         createdAt = LocalDateTime.now();
-    }
-
-    /**
-     * Cancel this registration
-     * @param reason Optional reason for cancellation
-     */
-    public void cancel(String reason) {
-        this.status = RegistrationStatus.CANCELLED;
-        this.cancelReason = reason;
-        this.updatedAt = LocalDateTime.now();
-        
-        // Update event capacity counter
-        if (event != null) {
-            event.unregisterAttendee();
-        }
     }
 }
