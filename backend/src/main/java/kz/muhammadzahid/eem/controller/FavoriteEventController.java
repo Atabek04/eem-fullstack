@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -58,5 +59,17 @@ public class FavoriteEventController {
         log.info("Getting all favorites for current user");
         List<EventResponseDto> favorites = favoriteEventService.getCurrentUserFavorites();
         return ResponseEntity.ok(favorites);
+    }
+
+    @GetMapping("/{eventId}/is-favorited")
+    public Boolean isFavorite(@PathVariable Long eventId) {
+        log.info("Checking if event {} is favorited by current user", eventId);
+        return favoriteEventService.isEventFavoritedByCurrentUser(eventId);
+    }
+
+    @GetMapping("/ids")
+    public Set<Long> getCurrentUserFavoriteIds() {
+        log.info("Getting all favorite IDs for current user");
+        return favoriteEventService.getCurrentUserFavoriteIds();
     }
 }
